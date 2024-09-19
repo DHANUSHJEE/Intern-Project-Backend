@@ -24,6 +24,16 @@ connectDB();
 
 app.use("/api/user", router);
 
+// Home Route
+app.get("/", (req, res) => {
+    res.send("Welcome to the homepage!");
+});
+
+// Handle undefined routes
+app.use((req, res) => {
+    res.status(404).send("Page not found");
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
