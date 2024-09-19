@@ -36,21 +36,21 @@ This project is a backend system for managing employee data, user registration, 
 ### 2. **Employee Management**
 
 #### **Add Employee**: 
-`POST /api/employee/addEmployee`
+`POST /api/user/addEmployee`
 - Accepts: `name`, `email`, `mobile`, `designation`, `gender`, `course`
 - Adds a new employee to the database, assigning an automatic employee number.
 
 #### **Get All Employees**: 
-`GET /api/employee/getAllEmployees`
+`GET /api/user/getAllEmployees`
 - Fetches a list of all employees from the database.
 
 #### **Edit Employee**: 
-`PUT /api/employee/editEmployee/:id`
+`PUT /api/user/editEmployee/:id`
 - Accepts: `name`, `email`, `mobile`, `designation`, `gender`, `course`
 - Updates an existing employee’s information by ID.
 
 #### **Delete Employee**: 
-`DELETE /api/employee/deleteEmployee/:id`
+`DELETE /api/user/deleteEmployee/:id`
 - Deletes an employee by ID.
 - Automatically reorders the employee numbers after deletion.
 
