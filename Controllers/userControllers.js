@@ -1,7 +1,7 @@
 
 
 import User from "../Schema/userSchema.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import Employee from "../Schema/employeeSchema.js";
@@ -32,7 +32,7 @@ const userController = {
             }
 
             //hashing the password
-            const hashedPassword = await bcrypt.hash(password, 12);
+            const hashedPassword = await bcrypt.hashSync(password, 12);
 
             //creating a new user
             const newUser = await User.create({
@@ -70,7 +70,7 @@ const userController = {
             }
 
             // Check if the password matches
-            const isMatch = await bcrypt.compare(password, user.password);
+            const isMatch = await bcrypt.compareSync(password, user.password);
             if (!isMatch) {
                 return res.status(400).json({ message: "Invalid password" });
             }
