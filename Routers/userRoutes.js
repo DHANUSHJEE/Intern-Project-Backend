@@ -10,6 +10,9 @@ router.post("/signup", userController.register )
 //login
 router.post("/login", userController.login)
 
+//forgot password
+router.post("/forgotpassword",userController.forgotPassword)
+
 //add employees
 router.post('/addEmployee',auth.verifyToken, userController.addEmployee)
 

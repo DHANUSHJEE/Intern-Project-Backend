@@ -99,6 +99,49 @@ const userController = {
         }
     },
 
+    //forgotPassword
+    forgotPassword: async (req, res) => {
+        try {
+            const { email, password } = req.body;
+            
+            if (!email || !password) {
+                return res.status(400).json({ message: "All fields are required" });
+            }
+
+            // Check if the user exists
+            const user = await User.findOne({ email });
+            if (!user) {
+                return res.status(400).json({ message: "User does not exist, kindly register and login" });
+            }
+
+            //if user exists change the password and store in db
+            if (password.length < 6) {
+                return res.status(400).json({message:"Password must be contain min 6 letters"})
+            }
+
+
+            // Hash the new password
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+
+            // Update the password in the database
+            user.password = hashedPassword;
+            await user.save();
+
+            return res.status(200).json({ message: "Password has been successfully reset." });
+
+
+
+
+            
+
+           
+        } catch (error) {
+            console.error("Error:", error);
+            res.status(500).json({ message: "Internal Server Error while processing forgot password request" });
+        }
+    },
+
     addEmployee: async (req, res) => {
         try {
             const { name, email, mobile, designation, gender, course } = req.body;
