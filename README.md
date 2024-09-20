@@ -61,6 +61,7 @@ This project is a backend system for managing employee data, user registration, 
 - This middleware ensures the request is authenticated by checking the JWT token in the cookies.
 - If the token is valid, it allows access to the protected routes like adding, editing, or deleting employees.
 
+##Deployed URL : https://intern-project-backend-z2kh.onrender.com
 
 ## License
 
