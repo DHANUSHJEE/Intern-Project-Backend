@@ -1,6 +1,7 @@
 import express from "express";
 import userController from "../Controllers/userControllers.js";
 import auth from "../Auth/auth.js";
+import { upload } from '../Controllers/userControllers.js'; 
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ router.post("/login", userController.login)
 router.post("/forgotpassword",userController.forgotPassword)
 
 //add employees
-router.post('/addEmployee',auth.verifyToken, userController.addEmployee)
+router.post('/addEmployee',auth.verifyToken,upload, userController.addEmployee)
 
 //get employees
 router.get('/getAllEmployees',auth.verifyToken, userController.getAllEmployees)

@@ -6,6 +6,10 @@ import router from "./Routers/userRoutes.js";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 
+
+
+
+
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
@@ -33,6 +37,10 @@ app.get("/", (req, res) => {
 app.use((req, res) => {
     res.status(404).send("Page not found");
 });
+
+
+
+
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
