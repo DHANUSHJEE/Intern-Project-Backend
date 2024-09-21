@@ -102,45 +102,57 @@ const userController = {
     //forgotPassword
     forgotPassword: async (req, res) => {
         try {
-            const { email, password } = req.body;
-            
-            if (!email || !password) {
+            console.log("API called");  // Log to check if API is hit
+            const { email, password, confirmpassword } = req.body;
+
+            console.log("Request body:", req.body); // Log the request body
+
+            // Check if all fields are provided
+            if (!email || !password || !confirmpassword) {
                 return res.status(400).json({ message: "All fields are required" });
             }
 
             // Check if the user exists
             const user = await User.findOne({ email });
             if (!user) {
+                console.log("User does not exist");
                 return res.status(400).json({ message: "User does not exist, kindly register and login" });
             }
 
-            //if user exists change the password and store in db
+            // Ensure the password is at least 6 characters long
             if (password.length < 6) {
-                return res.status(400).json({message:"Password must be contain min 6 letters"})
+                console.log("Password too short");
+                return res.status(400).json({ message: "Password must contain at least 6 characters" });
             }
 
+            // Check if password and confirm password match
+            if (password !== confirmpassword) {
+                console.log("Passwords do not match");
+                return res.status(400).json({ message: "Passwords do not match" });
+            }
 
             // Hash the new password
             const salt = await bcrypt.genSalt(10);
             const hashedPassword = await bcrypt.hash(password, salt);
 
+            console.log("Hashed password", hashedPassword);
+
             // Update the password in the database
             user.password = hashedPassword;
             await user.save();
 
+            console.log("Password reset successful");
+
+            // Respond with success message
             return res.status(200).json({ message: "Password has been successfully reset." });
 
-
-
-
-            
-
-           
         } catch (error) {
             console.error("Error:", error);
-            res.status(500).json({ message: "Internal Server Error while processing forgot password request" });
+            return res.status(500).json({ message: "Internal Server Error while processing forgot password request" });
         }
     },
+
+
 
     addEmployee: async (req, res) => {
         try {
