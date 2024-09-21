@@ -5,6 +5,9 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import Employee from "../Schema/employeeSchema.js";
+import multer from 'multer';
+import path from 'path';
+import Employee from '../models/Employee';
 
 dotenv.config();
 
@@ -154,46 +157,83 @@ const userController = {
 
 
 
-    addEmployee: async (req, res) => {
-        try {
-            const { name, email, mobile, designation, gender, course } = req.body;
+    storage : multer.diskStorage({
+        destination: (req, file, cb) => {
+            cb(null, 'uploads/'); // Destination folder for uploaded images
+        },
+        filename: (req, file, cb) => {
+            cb(null, `${Date.now()}-${file.originalname}`); // Save the file with a unique name
+        },
+    }),
 
-            // Validate input fields
-            if (!name || !email || !mobile || !designation || !gender || !course) {
-                return res.status(400).json({ message: "All fields are required" });
-            }
+    fileFilter : (req, file, cb) => {
+        const allowedExtensions = /jpeg|jpg|png/;
+        const extname = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
+        const mimetype = allowedExtensions.test(file.mimetype);
 
-            const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-            if (!email.match(emailRegex)) {
-                return res.status(400).json({ message: "Invalid email" });
-            }
-
-            if (!/^\d{10}$/.test(mobile)) {
-                return res.status(400).json({ message: "Invalid mobile number" });
-            }
-
-            // Count current employees to assign a new number
-            const employeeCount = await Employee.countDocuments();
-
-            // Create a new employee with the employee number
-            const newEmployee = await Employee.create({
-                no: employeeCount + 1, // Assign the new employee number
-                name,
-                email,
-                mobile,
-                designation,
-                gender,
-                course
-            });
-
-            // Respond with success
-            res.status(201).json({ message: "Employee added successfully", employee: newEmployee });
-        } catch (error) {
-            console.error("Error creating employee:", error.message);
-            res.status(500).json({ message: "Error occurred in adding employee", error: error.message });
+        if (mimetype && extname) {
+            return cb(null, true);
+        } else {
+            cb(new Error('Only .jpg and .png files are allowed!'));
         }
     },
 
+    // Multer middleware
+    upload : multer({
+        storage: storage,
+        limits: { fileSize: 1024 * 1024 * 5 }, // Limit to 5MB
+        fileFilter: fileFilter,
+    }).single('image'), // Single file upload, field name "image"
+
+    // Employee Controller for adding an employee
+    addEmployee : {
+        addEmployee: (req, res) => {
+            upload(req, res, async (err) => {
+                if (err) {
+                    return res.status(400).json({ message: err.message });
+                }
+
+                try {
+                    const { name, email, mobile, designation, gender, course } = req.body;
+
+                    // Validate input fields
+                    if (!name || !email || !mobile || !designation || !gender || !course) {
+                        return res.status(400).json({ message: "All fields are required" });
+                    }
+
+                    const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+                    if (!email.match(emailRegex)) {
+                        return res.status(400).json({ message: "Invalid email" });
+                    }
+
+                    if (!/^\d{10}$/.test(mobile)) {
+                        return res.status(400).json({ message: "Invalid mobile number" });
+                    }
+
+                    // Count current employees to assign a new number
+                    const employeeCount = await Employee.countDocuments();
+
+                    // Create the new employee with the image (if uploaded)
+                    const newEmployee = await Employee.create({
+                        no: employeeCount + 1, // Employee number
+                        name,
+                        email,
+                        mobile,
+                        designation,
+                        gender,
+                        course,
+                        image: req.file ? req.file.path : null, // Store the image path
+                    });
+
+                    // Respond with success
+                    res.status(201).json({ message: "Employee added successfully", employee: newEmployee });
+                } catch (error) {
+                    console.error("Error creating employee:", error.message);
+                    res.status(500).json({ message: "Error occurred in adding employee", error: error.message });
+                }
+            });
+        },
+    },
 
 
     getAllEmployees: async (req, res) => {
