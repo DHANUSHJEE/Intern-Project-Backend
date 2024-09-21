@@ -91,7 +91,7 @@ const userController = {
             });
 
             // Send success response with token
-            res.status(200).json({ message: "User logged in successfully", token });
+            res.status(200).json({ message: "User logged in successfully", token ,user});
 
         } catch (error) {
             // Catch any errors and respond with 500
