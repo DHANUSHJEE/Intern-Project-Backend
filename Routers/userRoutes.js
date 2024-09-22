@@ -1,43 +1,29 @@
 import express from "express";
 import userController from "../Controllers/userControllers.js";
 import verifyToken from "../Auth/auth.js";
-import { upload } from '../Controllers/userControllers.js'; 
-//import jwt from "jsonwebtoken"
+import { upload } from '../Controllers/userControllers.js';
 
 const router = express.Router();
 
-// const authenticateToken = (req, res, next) => {
-//     const authHeader = req.headers['authorization'];
-//     const token = authHeader && authHeader.split(' ')[1]; // Bearer token
+// Register
+router.post("/signup", userController.register);
 
-//     if (token == null) return res.sendStatus(401); // No token, return 401
+// Login
+router.post("/login", userController.login);
 
-//     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-//         if (err) return res.sendStatus(403); // Invalid token, return 403
-//         req.user = user;
-//         next();
-//     });
-// };
+// Forgot password
+router.post("/forgotpassword", userController.forgotPassword);
 
-//Register
-router.post("/signup", userController.register )
+// Get all employees (protected)
+router.get('/getAllEmployees', verifyToken, userController.getAllEmployees);
 
-//login
-router.post("/login", userController.login)
+// Add a new employee (protected, with image upload)
+router.post('/addEmployee', verifyToken, upload.single('image'), userController.addEmployee);
 
-//forgot password
-router.post("/forgotpassword",userController.forgotPassword)
+// Delete employee (protected)
+router.delete('/deleteEmployee/:id', verifyToken, userController.deleteEmployee);
 
-//add employees
-router.post('/addEmployee',verifyToken,upload, userController.addEmployee)
-
-//get employees
-router.get('/getAllEmployees', verifyToken, userController.getAllEmployees)
-
-//edit employess
-router.put('/updateEmployee/:id',verifyToken, userController.updateEmployee)
-
-//delete employee
-router.delete('/deleteEmployee/:id',verifyToken, userController.deleteEmployee)
+// Update employee (protected, with image upload)
+router.put('/updateEmployee/:id', verifyToken, upload.single('image'), userController.updateEmployee);
 
 export default router;

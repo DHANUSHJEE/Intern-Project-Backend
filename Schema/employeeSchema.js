@@ -6,11 +6,10 @@ const employeeSchema = new mongoose.Schema({
     mobile: { type: String, required: true },
     designation: { type: String, required: true },
     gender: { type: String, required: true },
-    courses: { type: [String], required: true },
-    date:{type:Date,required:true},
-    image: { type: String, required: false }
+    course: { type: [String], required: true }, // Array of courses
+    date: { type: Date },
+    image: { type: String }, // Path to image
+    userid: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true } // Reference to User
 });
 
-
-
-export default mongoose.model("Employee", employeeSchema)
+export default mongoose.model("Employee", employeeSchema);
