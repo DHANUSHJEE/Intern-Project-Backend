@@ -1,36 +1,22 @@
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+import jwt from 'jsonwebtoken'
+import dotenv from 'dotenv'
 
-dotenv.config();
+dotenv.config()
 
-const auth = {
-    verifyToken: async (req, res, next) => {
-        try {
-            // Get the token from cookies or Authorization header
-            const token = req.cookies.token 
+const verifyToken = (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];  // Extract the token from Bearer scheme
 
-            // If token is not present, return an error
-            if (!token) {
-                return res.status(401).json({ message: "Token is missing" });
-            }
-
-            // If token is present, verify the token
-            try {
-                const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-
-                // Add the decoded token to the request object
-                req.id = decodedToken.id;
-
-                next();
-            } catch (error) {
-                console.error("Token verification error:", error);
-                return res.status(401).json({ message: "Token is not valid" });
-            }
-        } catch (error) {
-            console.error("Internal Server Error in verifying token:", error);
-            return res.status(500).json({ message: "Internal Server Error" });
-        }
+    if (!token) {
+        return res.status(401).json({ message: 'Access denied. No token provided.' });
     }
-}
 
-export default auth;
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
+        next();
+    } catch (err) {
+        return res.status(401).json({ message: 'Invalid token.' });
+    }
+};
+
+export default verifyToken
