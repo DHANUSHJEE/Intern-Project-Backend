@@ -199,10 +199,10 @@ const userController = {
     // Employee Controller for adding an employee
     addEmployee: async (req, res) => {
         try {
-            const { name, email, mobile, designation, gender, course } = req.body;
+            const { name, email, mobile, designation, gender, course, date } = req.body;
 
             // Validate input fields
-            if (!name || !email || !mobile || !designation || !gender || !course) {
+            if (!name || !email || !mobile || !designation || !gender || !course || !date) {
                 return res.status(400).json({ message: "All fields are required" });
             }
 
@@ -227,6 +227,7 @@ const userController = {
                 designation,
                 gender,
                 course,
+                date,
                 image: req.file ? req.file.path : null, // Store the image path
             });
 
