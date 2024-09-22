@@ -197,54 +197,12 @@ const userController = {
 
 
     // Employee Controller for adding an employee
-    addEmployee: async (req, res) => {
-        try {
-            const { name, email, mobile, designation, gender, course, date } = req.body;
-
-            // Validate input fields
-            if (!name || !email || !mobile || !designation || !gender || !course || !date) {
-                return res.status(400).json({ message: "All fields are required" });
-            }
-
-            const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
-            if (!email.match(emailRegex)) {
-                return res.status(400).json({ message: "Invalid email" });
-            }
-
-            if (!/^\d{10}$/.test(mobile)) {
-                return res.status(400).json({ message: "Invalid mobile number" });
-            }
-
-            // Count current employees to assign a new number
-            const employeeCount = await Employee.countDocuments();
-
-            // Create the new employee with the image (if uploaded)
-            const newEmployee = await Employee.create({
-                no: employeeCount + 1, // Employee number
-                name,
-                email,
-                mobile,
-                designation,
-                gender,
-                course,
-                date,
-                image: req.file ? req.file.path : null, // Store the image path
-            });
-
-            // Respond with success
-            res.status(201).json({ message: "Employee added successfully", employee: newEmployee });
-        } catch (error) {
-            console.error("Error creating employee:", error.message);
-            res.status(500).json({ message: "Error occurred in adding employee", error: error.message });
-        }
-    },
-
-
-
     getAllEmployees: async (req, res) => {
         try {
-            // Retrieve all employees from the database
-            const employees = await Employee.find();
+            const userId = req.user._id; // Get the logged-in user's ID from the token
+
+            // Retrieve all employees associated with the logged-in user
+            const employees = await Employee.find({ userId: userId });
 
             // Respond with the list of employees
             res.status(200).json({ message: "Employees retrieved successfully", employees });
@@ -254,6 +212,29 @@ const userController = {
         }
     },
 
+    addEmployee: async (req, res) => {
+        try {
+            const { name, email, mobile, designation, gender, course, date } = req.body;
+            const userId = req.user._id; // Get the logged-in user's ID from the token
+
+            const newEmployee = new Employee({
+                name,
+                email,
+                mobile,
+                designation,
+                gender,
+                course,
+                date,
+                userId, // Associate the employee with the user
+                image: req.file ? req.file.path : null // Handle image upload if applicable
+            });
+
+            await newEmployee.save();
+            res.status(201).json({ message: "Employee added successfully", employee: newEmployee });
+        } catch (error) {
+            res.status(500).json({ message: "Error occurred while adding employee", error: error.message });
+        }
+    },
 
     updateEmployee: async (req, res) => {
         try {
