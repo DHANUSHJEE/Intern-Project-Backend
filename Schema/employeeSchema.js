@@ -7,6 +7,7 @@ const employeeSchema = new mongoose.Schema({
     designation: { type: String, required: true },
     gender: { type: String, required: true },
     courses: { type: [String], required: true },
+    date:{type:Date,required:true},
     image: { type: String, required: false }
 });
 
